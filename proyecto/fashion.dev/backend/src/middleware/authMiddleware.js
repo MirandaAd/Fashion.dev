@@ -1,24 +1,20 @@
-import { Router } from "express";
-import {
-  registerComprador,
-  loginComprador,
-  logoutComprador,
-  profileComprador
-} from "../controllers/authController.js";
-import { verifyToken } from "../middleware/authMiddleware.js"; // Middleware para proteger rutas
+import jwt from "jsonwebtoken";
 
-const router = Router();
+// Middleware para proteger rutas
+export const verifyToken = (req, res, next) => {
+  const { token } = req.cookies;
 
-// Ruta para registrar un nuevo comprador
-router.post("/register", registerComprador);
+  // Si no hay token, denegar acceso
+  if (!token) return res.status(401).json({ message: "Autorización denegada" });
 
-// Ruta para login de comprador
-router.post("/login", loginComprador);
+  // Verificar token con la SECRET_KEY
+  jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
+    if (err) return res.status(403).json({ message: "Token no es válido" });
 
-// Ruta para logout de comprador
-router.post("/logout", logoutComprador);
+    // Guardamos la info del usuario en la request
+    req.user = user;
 
-// Ruta para obtener perfil del comprador (protegida con middleware)
-router.get("/profile", verifyToken, profileComprador);
-
-export default router;
+    // Continuar con la siguiente función
+    next();
+  });
+};
