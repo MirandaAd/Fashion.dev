@@ -9,6 +9,9 @@ import path from "path";
 // Rutas
 import authRoutes from "./routes/auth.routes.js";
 import compradoresRoutes from "./routes/compradores.routes.js"; // ruta correcta
+import productoRoutes from "./routes/producto.routes.js";
+app.use("/api", productoRoutes);
+
 
 dotenv.config({ path: path.resolve('../.env') });
 
